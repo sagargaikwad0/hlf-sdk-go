@@ -1,0 +1,105 @@
+name: test-network-org1
+version: 1.0.0
+
+client:
+  organization: Org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+  logging:
+    level: debug      
+
+channels:
+  mychannel:  # Channel name
+    orderers:
+      - orderer.example.com
+    peers:
+      peer0.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true        
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+    cryptoPath: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/msp
+    peers:
+    - peer0.org1.example.com
+    certificateAuthorities:
+    - ca.org1.example.com
+    users:
+      User1:
+        cert:
+          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/cert.pem  # e.g., /path_to_certificates/User1@org1.example.com-cert.pem
+        key:
+          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/0426a91bbf4b43f1fd1e18467a71251c85d0ae067201fdcdb2ff8f86621a3e7f_sk  # e.g., /path_to_certificates/User1@org1.example.com-priv.key
+
+  Org2:
+    mspid: Org2MSP
+    cryptoPath: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/msp
+    peers:
+    - peer0.org2.example.com
+    certificateAuthorities:
+    - ca.org2.example.com
+    users:
+      User1:
+        cert:
+          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp/signcerts/cert.pem  # e.g., /path_to_certificates/User1@org1.example.com-cert.pem
+        key:
+          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp/keystore/81d1c1b6809745f6beef5748575de2b0be8af1c6e00221d7a47108f0af79a30a_sk  # e.g., /path_to_certificates/User1@org1.example.com-priv.key        
+
+orderers:
+  orderer.example.com:
+    url: grpcs://localhost:7050
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+    tlsCACerts:
+      path: /home/sagar/fabric-samples/test-network/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem  # Replace with your actual path
+
+
+peers:
+  peer0.org1.example.com:
+    url: grpcs://localhost:7051
+    tlsCACerts:
+      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      hostnameOverride: peer0.org1.example.com  
+
+  peer0.org2.example.com:
+    url: grpcs://localhost:9051
+    tlsCACerts:
+      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem     
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+      hostnameOverride: peer0.org2.example.com
+
+
+certificateAuthorities:
+  ca.org1.example.com:
+    url: https://localhost:7054
+    caName: ca-org1
+    tlsCACerts:
+      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      name: ca-org1    
+
+    httpOptions:
+      verify: false
+
+
+  ca.org2.example.com:
+    url: https://localhost:9054
+    caName: ca-org2
+    tlsCACerts:
+      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      name: ca-org2    
+
+    httpOptions:
+      verify: false    
