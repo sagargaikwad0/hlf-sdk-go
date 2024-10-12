@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
@@ -13,46 +15,27 @@ import (
 )
 
 const (
-	configPath    = "/home/sagar/Me/Work/hlf-sdk-go/a.yml"
+	configPath    = "/home/sagar/Me/Work/hlf-sdk-go/sdk/a.yml"
 	channelName   = "mychannel"
 	chaincodeName = "basic"
+	n             = 2
 )
 
-func query(client *channel.Client,
-	request *channel.Request,
-	targetPeers *channel.RequestOption) (string, error) {
-
-	response, err := client.Query(*request, *targetPeers)
-	if err != nil {
-		return "", err
-	}
-
-	return string(response.Payload), nil
+type sdk struct {
+	fabricsdk      *fabsdk.FabricSDK
+	requestOptions []channel.RequestOption
+	client         *channel.Client
+	counter        int32
 }
 
-func commit(client *channel.Client,
-	request *channel.Request,
-	targetPeers *channel.RequestOption) (string, error) {
+func newSdk(user, org string) *sdk {
 
-	response, err := client.Execute(*request, *targetPeers)
-	if err != nil {
-		return "", err
-	}
-
-	return string(response.TransactionID), nil
-}
-
-func main() {
-
-	var wg sync.WaitGroup
-
-	sdk, err := fabsdk.New(config.FromFile(configPath))
+	sdkk, err := fabsdk.New(config.FromFile(configPath))
 	if err != nil {
 		log.Fatalln("fail to create new sdk", err)
 	}
-	defer sdk.Close()
 
-	channelContext := sdk.ChannelContext(channelName, fabsdk.WithUser("User1"), fabsdk.WithOrg("Org1"))
+	channelContext := sdkk.ChannelContext(channelName, fabsdk.WithUser(user), fabsdk.WithOrg(org))
 
 	if channelContext == nil {
 		log.Fatalf("Failed to create channel context")
@@ -64,24 +47,76 @@ func main() {
 		log.Fatalln("failed to create new channel client, err:", err)
 	}
 
-	peer1 := getPeerFromConfig(sdk, "peer0.org1.example.com")
-	peer2 := getPeerFromConfig(sdk, "peer0.org2.example.com")
-	reqPeers := channel.WithTargets(peer1, peer2)
+	return &sdk{
+		fabricsdk: sdkk,
+		client:    channelClient,
+		counter:   0,
+	}
+}
 
-	wg.Add(200)
+func (s *sdk) setRequestOptions() {
+	peer0Org1 := getPeerFromConfig(s.fabricsdk, "peer0.org1.example.com")
+	peer0Org2 := getPeerFromConfig(s.fabricsdk, "peer0.org2.example.com")
 
-	for i := 0; i < 200; i++ {
+	s.requestOptions = append(s.requestOptions, channel.WithTargets(peer0Org1))
+	s.requestOptions = append(s.requestOptions, channel.WithTargets(peer0Org2))
+}
+
+func (s *sdk) commit(request *channel.Request) (string, error) {
+
+	response, err := s.client.Execute(*request)
+	if err != nil {
+		return "", err
+	}
+
+	return string(response.TransactionID), nil
+}
+
+// func query(client *channel.Client,
+// 	request *channel.Request,
+// 	targetPeers *channel.RequestOption) (string, error) {
+
+// 	response, err := client.Query(*request, *targetPeers)
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	return string(response.Payload), nil
+// }
+
+func main() {
+
+	var wg sync.WaitGroup
+
+	s := newSdk("User1", "Org1")
+	defer s.fabricsdk.Close()
+	s.setRequestOptions()
+
+	wg.Add(n)
+
+	start := time.Now()
+
+	for i := 0; i < n; i++ {
 		go func() {
+
+			if s.counter == 0 {
+				atomic.StoreInt32(&s.counter, 1)
+			} else {
+				atomic.StoreInt32(&s.counter, 0)
+			}
+
+			fmt.Println("counter", s.counter)
+
 			defer wg.Done()
 			assetId := fmt.Sprintf("asset%s", uuid.New())
 
 			request := channel.Request{
 				ChaincodeID: chaincodeName,
-				Fcn:         "AssetContract:InitLedger",
+				Fcn:         "AssetContract:Create",
 				Args:        [][]byte{[]byte("Electronic"), []byte(assetId), []byte("FAN")},
 			}
 
-			res, err := commit(channelClient, &request, &reqPeers)
+			res, err := s.commit(&request)
 			if err != nil {
 				log.Fatal("error while commiting, err:", err)
 			}
@@ -91,6 +126,8 @@ func main() {
 	}
 
 	wg.Wait()
+
+	fmt.Println("time took:", time.Since(start))
 
 }
 

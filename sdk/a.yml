@@ -39,10 +39,10 @@ client:
   cryptoconfig:
     path: /home/sagar/fabric-samples/test-network/organizations
 
-  credentialStore:
-    path: .
-    cryptoStore:
-      path: .
+  # credentialStore:
+  #   path: .
+  #   cryptoStore:
+  #     path: .
 
     # BCCSP config for the client. Used by GO SDK.
   BCCSP:
@@ -178,34 +178,34 @@ peers:
       path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
 
-certificateAuthorities:
-  ca.org1.example.com:
-    url: http://localhost:7054
-    tlsCACerts:
-      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
-      client:
-        key:
-          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.key
-        cert:
-          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.crt
-    registrar:
-      enrollId: admin
-      enrollSecret: adminpw
-    caName: ca.org1.example.com
+# certificateAuthorities:
+#   ca.org1.example.com:
+#     url: http://localhost:7054
+#     tlsCACerts:
+#       path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+#       client:
+#         key:
+#           path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.key
+#         cert:
+#           path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/tls/client.crt
+#     registrar:
+#       enrollId: admin
+#       enrollSecret: adminpw
+#     caName: ca.org1.example.com
 
-  ca.org2.root.example.com:
-    url: http://localhost:8054
-    tlsCACerts:
-      path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem
-      client:
-        key:
-          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.key
-        cert:
-          path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.crt
-    registrar:
-      enrollId: admin
-      enrollSecret: adminpw
-    caName: ca.org2.example.com
+#   ca.org2.root.example.com:
+#     url: http://localhost:8054
+#     tlsCACerts:
+#       path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem
+#       client:
+#         key:
+#           path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.key
+#         cert:
+#           path: /home/sagar/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/tls/client.crt
+#     registrar:
+#       enrollId: admin
+#       enrollSecret: adminpw
+#     caName: ca.org2.example.com
 
 entityMatchers:
   peer:
@@ -227,11 +227,11 @@ entityMatchers:
       sslTargetOverrideUrlSubstitutionExp: orderer.example.com
       mappedHost: orderer.example.com
 
-  certificateAuthorities:
-    - pattern: (\w*)ca.org1.example.com(\w*)
-      urlSubstitutionExp: http://localhost:7054
-      mappedHost: ca.org1.example.com
+  # certificateAuthorities:
+  #   - pattern: (\w*)ca.org1.example.com(\w*)
+  #     urlSubstitutionExp: http://localhost:7054
+  #     mappedHost: ca.org1.example.com
 
-    - pattern: (\w*)ca.org2.example.com(\w*)
-      urlSubstitutionExp: http://localhost:8054
-      mappedHost: ca.org2.example.com
+  #   - pattern: (\w*)ca.org2.example.com(\w*)
+  #     urlSubstitutionExp: http://localhost:8054
+  #     mappedHost: ca.org2.example.com

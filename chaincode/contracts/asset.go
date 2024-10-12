@@ -38,6 +38,13 @@ func (ac *AssetContract) InitLedger(ctx contractapi.TransactionContextInterface)
 
 func (ac *AssetContract) Create(ctx contractapi.TransactionContextInterface, assetType, assetId, name string) error {
 
+	clientId, err := ctx.GetStub().GetCreator()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("cleintId", string(clientId))
+
 	asset := models.Asset{
 		DocType: assetType,
 		Id:      assetId,
